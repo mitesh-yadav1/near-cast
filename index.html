@@ -7,36 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
-
-<!-- 1. Load Firebase -->
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
-
-<!-- 2. Connect it to your app -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyAL-jRYD1IdiJQyQ5oHTloYX3ZrjPA31BI",
-    authDomain: "near-cast-63173.firebaseapp.com",
-    databaseURL: "https://near-cast-63173-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "near-cast-63173"
-  };
-
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-
-  // Wire your app's window.storage directly to Firebase!
-  window.storage = {
-    set: async (key, value) => db.ref(key).set(value),
-    get: async (key) => {
-      const snapshot = await db.ref(key).once('value');
-      if (snapshot.exists()) return { value: snapshot.val() };
-      throw new Error('Not found');
-    },
-    delete: async (key) => db.ref(key).remove()
-  };
-</script>
-
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1/dist/peerjs.min.js"></script>
 <style>
   :root{
     --bg:#10171b;
@@ -113,7 +84,6 @@
     overflow:hidden;
   }
 
-  /* segmented switch */
   .switch{
     display:flex;
     background:var(--bg);
@@ -143,7 +113,6 @@
   .panel{ display:none; }
   .panel.active{ display:block; }
 
-  /* signal visual */
   .signal-wrap{ display:flex; justify-content:center; margin: 6px 0 18px; }
   svg.signal{ width:100%; max-width:260px; height:64px; overflow:visible; }
   .signal .line{ stroke:var(--border); stroke-width:2; transition: stroke .25s ease; }
@@ -180,7 +149,6 @@
     line-height:1.5;
   }
 
-  /* drop zone */
   .dropzone{
     border:1.5px dashed var(--border);
     border-radius:12px;
@@ -208,7 +176,6 @@
   }
   .filelist li span.fname{ color:var(--text); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 
-  /* code readout */
   .readout{
     display:flex; justify-content:center; gap:10px; margin: 4px 0 14px;
   }
@@ -235,7 +202,6 @@
 
   .hint{ text-align:center; color:var(--text-dimmer); font-size:12px; margin: 0 0 20px; line-height:1.5; }
 
-  /* OTP input for receive */
   .otp-row{ display:flex; justify-content:center; gap:10px; margin: 4px 0 18px; }
   .otp-row input{
     font-family:var(--mono);
@@ -260,7 +226,6 @@
   @keyframes blink{ 0%,100%{ opacity:1;} 50%{ opacity:.3; } }
   #statusText{ font-size:13.5px; color:var(--text-dim); }
 
-  /* progress meter */
   .meter{
     height:10px; border-radius:5px; background:var(--bg);
     border:1px solid var(--border); overflow:hidden; position:relative;
@@ -334,7 +299,6 @@
 
       <div class="error-box" id="errorBox"></div>
 
-      <!-- SEND: pick files -->
       <section class="panel active" id="panel-send-pick">
         <h2 class="step-title">Choose what to send</h2>
         <p class="step-sub">Pick one or more files from this device.</p>
@@ -347,7 +311,6 @@
         <ul class="filelist" id="chosenList"></ul>
       </section>
 
-      <!-- SEND: waiting for receiver -->
       <section class="panel" id="panel-send-wait">
         <h2 class="step-title">Share this code</h2>
         <p class="step-sub">Enter it on the receiving device, on this same page.</p>
@@ -370,7 +333,6 @@
         <button class="btn ghost" id="cancelSendWait">Start over</button>
       </section>
 
-      <!-- SEND: transfer in progress -->
       <section class="panel" id="panel-send-transfer">
         <h2 class="step-title">Sending…</h2>
         <p class="step-sub" id="sendTransferSub">Keep this page open on both devices.</p>
@@ -378,14 +340,12 @@
         <div class="meter-label"><span id="sendMeterText">Starting…</span><span id="sendMeterPct">0%</span></div>
       </section>
 
-      <!-- SEND: done -->
       <section class="panel" id="panel-send-done">
         <h2 class="step-title">Transfer complete</h2>
         <p class="step-sub">The other device has every file.</p>
         <button class="btn primary" id="sendAgainBtn">Send more files</button>
       </section>
 
-      <!-- RECEIVE: enter code -->
       <section class="panel" id="panel-receive-enter">
         <h2 class="step-title">Enter the code</h2>
         <p class="step-sub">Type the 4-digit code shown on the sending device.</p>
@@ -398,7 +358,6 @@
         <button class="btn primary" id="joinBtn">Connect</button>
       </section>
 
-      <!-- RECEIVE: connecting -->
       <section class="panel" id="panel-receive-connecting">
         <h2 class="step-title">Connecting…</h2>
         <p class="step-sub">Linking up with the sending device.</p>
@@ -414,7 +373,6 @@
         <button class="btn ghost" id="cancelRecvWait">Start over</button>
       </section>
 
-      <!-- RECEIVE: transfer in progress -->
       <section class="panel" id="panel-receive-transfer">
         <h2 class="step-title">Receiving…</h2>
         <p class="step-sub" id="recvTransferSub">Don't close this page.</p>
@@ -422,7 +380,6 @@
         <div class="meter-label"><span id="recvMeterText">Starting…</span><span id="recvMeterPct">0%</span></div>
       </section>
 
-      <!-- RECEIVE: done -->
       <section class="panel" id="panel-receive-done">
         <h2 class="step-title">Files received</h2>
         <p class="step-sub">Save them to this device.</p>
@@ -432,15 +389,13 @@
 
     </div>
 
-    <footer>Files move directly between devices over a peer-to-peer connection.<br>Nothing is uploaded to a server.</footer>
+    <footer>Files move directly between devices over a peer-to-peer connection.<br>Only a brief connection handshake uses the internet.</footer>
   </div>
 
 <script>
 (function(){
   'use strict';
 
-
-  const ICE = [{ urls: 'stun:stun.l.google.com:19302' }];
   const CHUNK_SIZE = 16384;
   const HIGH_WATER = 1048576;
   const LOW_WATER = 262144;
@@ -449,8 +404,8 @@
   const $ = (id) => document.getElementById(id);
   const body = document.body;
 
-  let pc = null, dc = null, code = null;
-  let pollTimer = null, waitTimeoutTimer = null;
+  let peer = null, conn = null, code = null;
+  let waitTimeoutTimer = null;
   let sendFilesQueue = [];
   let sendTotalBytes = 0, sendBytesDone = 0;
   let recvManifest = null, recvFileIndex = -1, recvChunks = [], recvBytesForFile = 0, recvTotalBytes = 0, recvBytesDone = 0;
@@ -492,19 +447,13 @@
   }
 
   function stopTimers(){
-    if(pollTimer){ clearInterval(pollTimer); pollTimer = null; }
     if(waitTimeoutTimer){ clearTimeout(waitTimeoutTimer); waitTimeoutTimer = null; }
   }
 
   function closeConnection(){
     stopTimers();
-    if(dc){ try{ dc.close(); }catch(e){} dc = null; }
-    if(pc){ try{ pc.close(); }catch(e){} pc = null; }
-  }
-
-  async function forgetRoom(){
-    if(!code) return;
-    try{ await window.storage.delete('room:' + code, true); }catch(e){ /* already gone, fine */ }
+    if(conn){ try{ conn.close(); }catch(e){} conn = null; }
+    if(peer){ try{ peer.destroy(); }catch(e){} peer = null; }
   }
 
   function resetToHome(role){
@@ -520,7 +469,6 @@
     else { setState('send-pick'); }
   }
 
-  // ---------- role switch ----------
   $('roleSwitch').addEventListener('click', (e) => {
     const btn = e.target.closest('button[data-role]');
     if(!btn) return;
@@ -529,18 +477,6 @@
     closeConnection();
     resetToHome(btn.dataset.role);
   });
-
-  // ---------- ICE helper (non-trickle: wait for full gathering) ----------
-  function waitIceComplete(peer, timeoutMs){
-    if(peer.iceGatheringState === 'complete') return Promise.resolve();
-    return new Promise((resolve) => {
-      let done = false;
-      const finish = () => { if(done) return; done = true; peer.removeEventListener('icegatheringstatechange', check); resolve(); };
-      function check(){ if(peer.iceGatheringState === 'complete') finish(); }
-      peer.addEventListener('icegatheringstatechange', check);
-      setTimeout(finish, timeoutMs);
-    });
-  }
 
   // ================= SEND =================
 
@@ -589,108 +525,101 @@
     });
   }
 
-  async function startSend(){
+  function startSend(){
     setState('send-wait');
     $('sendDot').className = 'dot searching';
     $('sendStatusText').textContent = 'Waiting for the other device…';
     code = genCode();
     renderCodeReadout(code);
-
     closeConnection();
-    pc = new RTCPeerConnection({ iceServers: ICE });
-    dc = pc.createDataChannel('file');
-    dc.binaryType = 'arraybuffer';
-    dc.bufferedAmountLowThreshold = LOW_WATER;
+    createSenderPeer();
 
-    pc.oniceconnectionstatechange = () => {
-      if(pc && (pc.iceConnectionState === 'failed')){
-        showError("Couldn't establish a direct connection. Make sure both devices are on the same network and try again.");
-      }
-    };
-
-    dc.onopen = () => {
-      stopTimers();
-      $('sendDot').className = 'dot ok';
-      $('sendStatusText').textContent = 'Connected';
-      forgetRoom();
-      setState('send-transfer');
-      sendAllFiles();
-    };
-    dc.onclose = () => {
-      if(body.getAttribute('data-state') === 'send-transfer'){
-        showError('The connection closed before the transfer finished.');
-      }
-    };
-
-    try{
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      await waitIceComplete(pc, 4000);
-      const room = { offer: pc.localDescription, answer: null, createdAt: Date.now() };
-      await window.storage.set('room:' + code, JSON.stringify(room), true);
-    }catch(err){
-      showError('Could not open a channel. Try again.');
-      return;
-    }
-
-    pollForAnswer();
     waitTimeoutTimer = setTimeout(() => {
       if(body.getAttribute('data-state') === 'send-wait'){
         stopTimers();
         showError('No one joined with that code in time.');
-        forgetRoom();
+        closeConnection();
       }
     }, WAIT_TIMEOUT_MS);
   }
 
-  function pollForAnswer(){
-    pollTimer = setInterval(async () => {
-      if(!code || !pc) return;
-      try{
-        const res = await window.storage.get('room:' + code, true);
-        if(res && res.value){
-          const room = JSON.parse(res.value);
-          if(room.answer){
-            clearInterval(pollTimer); pollTimer = null;
-            await pc.setRemoteDescription(room.answer);
-          }
+  function createSenderPeer(){
+    peer = new Peer('nearcast-' + code, { debug: 0 });
+
+    peer.on('open', () => { /* ready and listening */ });
+
+    peer.on('error', (err) => {
+      if(err && err.type === 'unavailable-id'){
+        try{ peer.destroy(); }catch(e){}
+        code = genCode();
+        renderCodeReadout(code);
+        createSenderPeer();
+      } else if(body.getAttribute('data-state') === 'send-wait' || body.getAttribute('data-state') === 'send-transfer'){
+        showError('Connection problem: ' + (err && err.type ? err.type : 'unknown') + '. Check your internet connection and try again.');
+      }
+    });
+
+    peer.on('connection', (connection) => {
+      conn = connection;
+      conn.on('open', () => {
+        stopTimers();
+        $('sendDot').className = 'dot ok';
+        $('sendStatusText').textContent = 'Connected';
+        setState('send-transfer');
+        sendAllFiles();
+      });
+      conn.on('close', () => {
+        if(body.getAttribute('data-state') === 'send-transfer'){
+          showError('The connection closed before the transfer finished.');
         }
-      }catch(err){ /* no answer yet */ }
-    }, 1200);
+      });
+      conn.on('error', () => {
+        if(body.getAttribute('data-state') !== 'send-done'){
+          showError('The connection ran into a problem.');
+        }
+      });
+    });
   }
 
   async function sendAllFiles(){
     sendTotalBytes = sendFilesQueue.reduce((a, f) => a + f.size, 0);
     sendBytesDone = 0;
 
-    const manifest = { type: 'manifest', files: sendFilesQueue.map(f => ({ name: f.name, size: f.size, mime: f.type })) };
-    dc.send(JSON.stringify(manifest));
+    conn.send({ type: 'manifest', files: sendFilesQueue.map(f => ({ name: f.name, size: f.size, mime: f.type })) });
 
     for(let i = 0; i < sendFilesQueue.length; i++){
       const file = sendFilesQueue[i];
       $('sendTransferSub').textContent = 'File ' + (i+1) + ' of ' + sendFilesQueue.length + ': ' + file.name;
-      dc.send(JSON.stringify({ type: 'file-start', index: i, name: file.name, size: file.size, mime: file.type }));
-      await sendOneFile(file, i);
-      dc.send(JSON.stringify({ type: 'file-end', index: i }));
+      conn.send({ type: 'file-start', index: i, name: file.name, size: file.size, mime: file.type });
+      try{
+        await sendOneFile(file, i);
+      }catch(err){
+        showError('The transfer stopped: the connection was lost.');
+        return;
+      }
+      conn.send({ type: 'file-end', index: i });
     }
-    dc.send(JSON.stringify({ type: 'done' }));
+    conn.send({ type: 'done' });
     setState('send-done');
   }
 
   function sendOneFile(file, index){
     return new Promise(async (resolve, reject) => {
       let offset = 0;
+      const channel = conn.dataChannel;
+      if(channel) channel.bufferedAmountLowThreshold = LOW_WATER;
       try{
         while(offset < file.size){
-          if(!dc || dc.readyState !== 'open'){ reject(new Error('closed')); return; }
-          if(dc.bufferedAmount > HIGH_WATER){
+          if(!conn || !conn.open){ reject(new Error('closed')); return; }
+          if(channel && channel.bufferedAmount > HIGH_WATER){
             await new Promise(res => {
-              dc.onbufferedamountlow = () => { dc.onbufferedamountlow = null; res(); };
+              const onLow = () => { channel.removeEventListener('bufferedamountlow', onLow); res(); };
+              channel.addEventListener('bufferedamountlow', onLow);
             });
           }
           const slice = file.slice(offset, offset + CHUNK_SIZE);
           const buf = await slice.arrayBuffer();
-          dc.send(buf);
+          conn.send(buf);
           offset += buf.byteLength;
           sendBytesDone += buf.byteLength;
           updateSendProgress();
@@ -707,7 +636,7 @@
     $('sendMeterText').textContent = formatBytes(sendBytesDone) + ' / ' + formatBytes(sendTotalBytes);
   }
 
-  $('cancelSendWait').addEventListener('click', () => { forgetRoom(); resetToHome('send'); });
+  $('cancelSendWait').addEventListener('click', () => resetToHome('send'));
   $('sendAgainBtn').addEventListener('click', () => { closeConnection(); resetToHome('send'); });
   $('copyCodeBtn').addEventListener('click', async () => {
     try{
@@ -748,73 +677,68 @@
     joinRoom(codeStr);
   }
 
-  async function joinRoom(codeStr){
+  function joinRoom(codeStr){
     code = codeStr;
     setState('receive-connecting');
     $('recvDot').className = 'dot searching';
     $('recvStatusText').textContent = 'Reaching the sender…';
 
-    let room;
-    try{
-      const res = await window.storage.get('room:' + code, true);
-      if(!res || !res.value) throw new Error('not found');
-      room = JSON.parse(res.value);
-    }catch(err){
-      resetToHome('receive');
-      showError('No signal on that code. Check it and try again.');
-      return;
-    }
-
     closeConnection();
-    pc = new RTCPeerConnection({ iceServers: ICE });
+    peer = new Peer({ debug: 0 });
 
-    pc.ondatachannel = (e) => {
-      dc = e.channel;
-      dc.binaryType = 'arraybuffer';
-      setupReceiverChannel();
-    };
-    pc.oniceconnectionstatechange = () => {
-      if(pc && pc.iceConnectionState === 'failed'){
-        showError("Couldn't establish a direct connection. Make sure both devices are on the same network and try again.");
+    peer.on('open', () => {
+      conn = peer.connect('nearcast-' + code, { reliable: true, serialization: 'binary' });
+
+      conn.on('open', () => setupReceiverChannel());
+
+      conn.on('error', () => {
+        showError('Could not connect on that code. Try again.');
+      });
+
+      // if the target id doesn't exist, PeerJS raises a peer-level error, not a connection error
+      setTimeout(() => {
+        if(body.getAttribute('data-state') === 'receive-connecting' && (!conn || !conn.open)){
+          showError('No signal on that code. Check it and try again.');
+        }
+      }, 9000);
+    });
+
+    peer.on('error', (err) => {
+      if(body.getAttribute('data-state') === 'receive-connecting' || body.getAttribute('data-state') === 'receive-enter'){
+        if(err && err.type === 'peer-unavailable'){
+          resetToHome('receive');
+          showError('No signal on that code. Check it and try again.');
+        } else {
+          showError('Connection problem: ' + (err && err.type ? err.type : 'unknown') + '. Check your internet connection and try again.');
+        }
       }
-    };
-
-    try{
-      await pc.setRemoteDescription(room.offer);
-      const answer = await pc.createAnswer();
-      await pc.setLocalDescription(answer);
-      await waitIceComplete(pc, 4000);
-      room.answer = pc.localDescription;
-      await window.storage.set('room:' + code, JSON.stringify(room), true);
-    }catch(err){
-      showError('Could not connect on that code. Try again.');
-      return;
-    }
+    });
   }
 
   function setupReceiverChannel(){
     recvManifest = null; recvFileIndex = -1; recvChunks = []; recvBytesForFile = 0; recvTotalBytes = 0; recvBytesDone = 0; recvResults = [];
 
-    dc.onopen = () => {
-      $('recvDot').className = 'dot ok';
-      $('recvStatusText').textContent = 'Connected';
-    };
-    dc.onclose = () => {
+    $('recvDot').className = 'dot ok';
+    $('recvStatusText').textContent = 'Connected';
+
+    conn.on('close', () => {
       const st = body.getAttribute('data-state');
       if(st === 'receive-transfer' || st === 'receive-connecting'){
         showError('The connection closed before the transfer finished.');
       }
-    };
-    dc.onmessage = (e) => {
-      if(typeof e.data === 'string'){
-        handleControl(JSON.parse(e.data));
+    });
+
+    conn.on('data', (data) => {
+      if(data && typeof data === 'object' && !(data instanceof ArrayBuffer) && !ArrayBuffer.isView(data) && data.type){
+        handleControl(data);
       } else {
-        recvChunks.push(e.data);
-        recvBytesForFile += e.data.byteLength;
-        recvBytesDone += e.data.byteLength;
+        recvChunks.push(data);
+        const len = data.byteLength !== undefined ? data.byteLength : (data.buffer ? data.buffer.byteLength : 0);
+        recvBytesForFile += len;
+        recvBytesDone += len;
         updateRecvProgress();
       }
-    };
+    });
   }
 
   function handleControl(msg){
@@ -838,7 +762,6 @@
       meta.actualSize = blob.size;
       recvChunks = [];
     } else if(msg.type === 'done'){
-      forgetRoom();
       renderDoneList();
       setState('receive-done');
     }
@@ -875,7 +798,6 @@
   $('cancelRecvWait').addEventListener('click', () => resetToHome('receive'));
   $('recvAgainBtn').addEventListener('click', () => { closeConnection(); resetToHome('receive'); });
 
-  // start on send panel
   setState('send-pick');
 })();
 </script>
